@@ -150,12 +150,38 @@ extension ViewController: UIScrollViewDelegate {
         let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
         pageControl.currentPage = currentPage
         menuView.setSelectedIndex(currentPage)
+        
+        // Synchronize all pages to match the current page's offset
+        synchronizeContentOffsets(currentPageIndex: currentPage)
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
         pageControl.currentPage = currentPage
         menuView.setSelectedIndex(currentPage)
+        
+        // Synchronize all pages to match the current page's offset
+        synchronizeContentOffsets(currentPageIndex: currentPage)
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // Get the current page index
+        let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
+        
+        // Synchronize all other pages to match the current page's offset
+        synchronizeContentOffsets(currentPageIndex: currentPage)
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func synchronizeContentOffsets(currentPageIndex: Int) {
+        let currentPageView = collectionPages[currentPageIndex]
+        
+        for (index, page) in collectionPages.enumerated() {
+            if index != currentPageIndex {
+                page.collectionView.setContentOffset(currentPageView.collectionView.contentOffset, animated: false)
+            }
+        }
     }
 }
 
