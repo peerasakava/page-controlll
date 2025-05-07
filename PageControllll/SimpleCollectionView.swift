@@ -11,6 +11,7 @@ class SimpleCollectionView: UIViewController {
     // MARK: - Properties
     
     var pageBackgroundColor: UIColor = .white
+    var products: [Product] = []
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -30,8 +31,9 @@ class SimpleCollectionView: UIViewController {
     
     // MARK: - Initialization
     
-    init(backgroundColor: UIColor = .white) {
+    init(backgroundColor: UIColor = .white, products: [Product] = []) {
         self.pageBackgroundColor = backgroundColor
+        self.products = products
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -69,6 +71,11 @@ class SimpleCollectionView: UIViewController {
         scrollListener = listener
     }
     
+    func updateProducts(_ products: [Product]) {
+        self.products = products
+        collectionView.reloadData()
+    }
+    
     // MARK: - Private Properties
     
     private var scrollListener: ((CGFloat) -> Void)?
@@ -77,14 +84,20 @@ class SimpleCollectionView: UIViewController {
 // MARK: - UICollectionViewDataSource
 extension SimpleCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 20 // Default item count for testing
+        return products.isEmpty ? 20 : products.count // Default item count for testing if no products
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SimpleCVC.identifier, for: indexPath) as? SimpleCVC else {
             return UICollectionViewCell()
         }
-        cell.configure(with: "Item \(indexPath.row + 1)")
+        
+        if products.isEmpty {
+            cell.configure(with: "Item \(indexPath.row + 1)")
+        } else {
+            cell.configure(with: products[indexPath.row])
+        }
+        
         return cell
     }
 }

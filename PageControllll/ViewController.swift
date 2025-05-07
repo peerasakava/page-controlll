@@ -26,6 +26,12 @@ class ViewController: UIViewController {
         mainHeaderView.backgroundColor = .yellow
         return mainHeaderView
     }()
+    
+    lazy var mainMenuView: MainMenuView = {
+        let mainMenuView = MainMenuView()
+        mainMenuView.delegate = self
+        return mainMenuView
+    }()
 
     lazy var menuView: PageMenuView = {
         let menuView = PageMenuView()
@@ -34,21 +40,31 @@ class ViewController: UIViewController {
     }()
     
     private var collectionPages: [SimpleCollectionView] = []
-    private let pageCount = 3
+    private var currentCategories: [Category] = []
+    private var pageCount: Int {
+        return currentCategories.count
+    }
 
     private let mainHeaderHeight: CGFloat = 300
     private let mainHeaderInitialY: CGFloat = 60
     private let maxMainHeaderOffset: CGFloat = 400
     private let minMainHeaderOffset: CGFloat = -300
 
+    private let mainMenuHeight: CGFloat = 60
+    private let mainMenuInitialY: CGFloat = 240
+    
     private let menuHeight: CGFloat = 60
     private let menuIntialY: CGFloat = 300
-    private let maxMenuOffset: CGFloat = 400
+    private let maxMenuOffset: CGFloat = 500
     
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Default to Core Offerings
+        currentCategories = Category.coreOfferings
+        
         setupViews()
         setupChildViewControllers()
     }
@@ -89,6 +105,14 @@ class ViewController: UIViewController {
             make.top.equalToSuperview().offset(mainHeaderInitialY)
         }
         
+        // Add main menu view
+        view.addSubview(mainMenuView)
+        mainMenuView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.height.equalTo(mainMenuHeight)
+            make.top.equalToSuperview().offset(mainMenuInitialY)
+        }
+        
         // Add menu view
         view.addSubview(menuView)
         menuView.snp.makeConstraints { make in
@@ -99,18 +123,32 @@ class ViewController: UIViewController {
     }
     
     private func setupChildViewControllers() {
-        // Create 3 SimpleCollectionView instances with different colors
+        // Remove existing child view controllers
+        for childVC in collectionPages {
+            childVC.willMove(toParent: nil)
+            childVC.view.removeFromSuperview()
+            childVC.removeFromParent()
+        }
+        collectionPages.removeAll()
+        
+        // Create background colors
         let colors: [UIColor] = [
             .orange.withAlphaComponent(0.5),
             .cyan.withAlphaComponent(0.5),
-            .green.withAlphaComponent(0.5)
+            .green.withAlphaComponent(0.5),
+            .purple.withAlphaComponent(0.5)
         ]
         
-        let titles = ["Page One", "Page Two", "Page Three"]
+        // Create titles from categories
+        let titles = currentCategories.map { $0.name }
         
         for i in 0..<pageCount {
+            let category = currentCategories[i]
+            let colorIndex = i % colors.count
+            
             let collectionViewController = SimpleCollectionView(
-                backgroundColor: colors[i]
+                backgroundColor: colors[colorIndex],
+                products: category.products
             )
             addChild(collectionViewController)
             scrollView.addSubview(collectionViewController.view)
@@ -126,27 +164,44 @@ class ViewController: UIViewController {
         
         // Configure menu with page titles
         menuView.configure(with: titles)
+        
+        // Reset to first page
+        if !titles.isEmpty {
+            menuView.setSelectedIndex(0)
+        }
     }
     
     // MARK: - Menu Positioning
     
     private func updateMenuPosition(with offsetY: CGFloat) {
-        // Calculate new Y position for menu
+        // Calculate new Y position for menu and main menu
         // offsetY will be negative when scrolling down from the top
         
-        let menuTranslationY = min(maxMenuOffset - menuIntialY, max(view.safeAreaInsets.top - menuIntialY, -offsetY))
+        let mainMenuTranslationY = min(maxMenuOffset - mainMenuInitialY, max(view.safeAreaInsets.top - mainMenuInitialY, -offsetY))
+        let menuTranslationY = min(maxMenuOffset - menuIntialY, max(view.safeAreaInsets.top - menuIntialY + mainMenuHeight, -offsetY))
         let mainHeaderTranslationY = min(maxMainHeaderOffset - mainHeaderInitialY, max((minMainHeaderOffset + view.safeAreaInsets.top + menuHeight) - mainHeaderInitialY, -offsetY))
+        
         // Apply transform instead of updating constraints
+        self.mainMenuView.transform = CGAffineTransform(translationX: 0, y: mainMenuTranslationY)
         self.menuView.transform = CGAffineTransform(translationX: 0, y: menuTranslationY)
         self.mainHeaderView.transform = CGAffineTransform(translationX: 0, y: mainHeaderTranslationY)
     }
     
     // MARK: - Actions
     
-    @objc private func pageControlValueChanged(_ sender: UIPageControl) {
-        let offsetX = scrollView.frame.width * CGFloat(sender.currentPage)
-        scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
-        menuView.setSelectedIndex(sender.currentPage)
+    private func switchToMenuType(_ index: Int) {
+        // 0 = Core Offerings, 1 = Research & Development
+        switch index {
+        case 0:
+            currentCategories = Category.coreOfferings
+        case 1:
+            currentCategories = Category.researchAndDevelopment
+        default:
+            currentCategories = Category.coreOfferings
+        }
+        
+        setupChildViewControllers()
+        view.layoutIfNeeded()
     }
 }
 
@@ -179,15 +234,23 @@ extension ViewController: UIScrollViewDelegate {
     // MARK: - Helper Methods
     
     private func synchronizeContentOffsets(currentPageIndex: Int) {
+        guard !collectionPages.isEmpty, currentPageIndex < collectionPages.count else { return }
+        
         let currentPageView = collectionPages[currentPageIndex]
         
         for (index, page) in collectionPages.enumerated() {
             if index != currentPageIndex {
                 let currentOffset = currentPageView.collectionView.contentOffset
-                let nextOffsetY = min(-menuHeight, currentOffset.y)
+                let nextOffsetY = min(-(menuHeight + mainMenuHeight), currentOffset.y) 
+                // check content size height of page not full height
+                if page.collectionView.contentSize.height < page.collectionView.frame.height {
+                    // add content inset to the bottom of the page to make it full height
+                    page.collectionView.contentInset.bottom = page.collectionView.frame.height - page.collectionView.contentSize.height
+                }
+                
                 page.collectionView.setContentOffset(.init(x: 0,
-                                                           y: nextOffsetY),
-                                                     animated: false)
+                                                            y: nextOffsetY),
+                                                    animated: false)
             }
         }
     }
@@ -198,6 +261,13 @@ extension ViewController: PageMenuViewDelegate {
     func pageMenuView(_ menuView: PageMenuView, didSelectPageAt index: Int) {
         let offsetX = scrollView.frame.width * CGFloat(index)
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
+    }
+}
+
+// MARK: - MainMenuViewDelegate
+extension ViewController: MainMenuViewDelegate {
+    func mainMenuView(_ menuView: MainMenuView, didSelectMenuAt index: Int) {
+        switchToMenuType(index)
     }
 }
 

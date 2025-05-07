@@ -19,7 +19,25 @@ struct Category {
 
 extension Product {
     static let mobileDevices: [Product] = [
-        Product(name: "iPhone", descriptionXS: "Description XS 1", descriptionL: "Description L 1")
+        Product(name: "iPhone 16 Pro Max", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 16 Pro", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 16", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 16 Plus", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 15 Pro Max", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 15 Pro", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 15", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 15 Plus", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 14 Pro Max", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 14 Pro", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 14", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 14 Plus", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 13 Pro Max", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 13 Pro", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 13", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 13 Mini", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 12 Pro Max", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        Product(name: "iPhone 12 Pro", descriptionXS: "Description XS 1", descriptionL: "Description L 1"),
+        
         ]
     static let tablets: [Product] = [
         Product(name: "iPad", descriptionXS: "Description XS 1", descriptionL: "Description L 1")

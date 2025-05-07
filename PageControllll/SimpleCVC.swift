@@ -15,7 +15,15 @@ class SimpleCVC: UICollectionViewCell {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        return label
+    }()
+    
+    lazy var descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .darkGray
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 1
         return label
     }()
     
@@ -35,11 +43,19 @@ class SimpleCVC: UICollectionViewCell {
     private func setupViews() {
         contentView.backgroundColor = .white
         
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 4
+        stackView.alignment = .leading
+        
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(descriptionLabel)
+        
+        contentView.addSubview(stackView)
+        stackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
-            make.trailing.lessThanOrEqualToSuperview().offset(-16)
         }
         
         // Add separator line
@@ -56,11 +72,19 @@ class SimpleCVC: UICollectionViewCell {
     
     func configure(with title: String) {
         titleLabel.text = title
+        descriptionLabel.text = nil
+        contentView.backgroundColor = .clear
+    }
+    
+    func configure(with product: Product) {
+        titleLabel.text = product.name
+        descriptionLabel.text = product.descriptionXS
         contentView.backgroundColor = .clear
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         titleLabel.text = nil
+        descriptionLabel.text = nil
     }
 } 
