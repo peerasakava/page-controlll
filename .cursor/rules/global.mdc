@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+1. This project is iOS app that designed to POC the concept of nested paging control (horizontal)
+2. Always using UIKit only, No SwiftUI in this project at all
+3. No Storyboard, Pure code only
+4. Using `lazy var` to declare the views or subview in view/viewcontroller classes
+5. Using `SnapKit` to handle the constraints (already installed with SPM)
