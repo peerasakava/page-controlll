@@ -21,16 +21,12 @@ class ViewController: UIViewController {
         return scrollView
     }()
     
-    lazy var pageControl: UIPageControl = {
-        let pageControl = UIPageControl()
-        pageControl.numberOfPages = pageCount
-        pageControl.currentPage = 0
-        pageControl.pageIndicatorTintColor = .lightGray
-        pageControl.currentPageIndicatorTintColor = .darkGray
-        pageControl.addTarget(self, action: #selector(pageControlValueChanged(_:)), for: .valueChanged)
-        return pageControl
+    lazy var mainHeaderView: UIView = {
+        let mainHeaderView = UIView()
+        mainHeaderView.backgroundColor = .yellow
+        return mainHeaderView
     }()
-    
+
     lazy var menuView: PageMenuView = {
         let menuView = PageMenuView()
         menuView.delegate = self
@@ -39,10 +35,15 @@ class ViewController: UIViewController {
     
     private var collectionPages: [SimpleCollectionView] = []
     private let pageCount = 3
-    private let menuHeight: CGFloat = 100
+
+    private let mainHeaderHeight: CGFloat = 300
+    private let mainHeaderInitialY: CGFloat = 60
+    private let maxMainHeaderOffset: CGFloat = 400
+    private let minMainHeaderOffset: CGFloat = -300
+
+    private let menuHeight: CGFloat = 60
     private let menuIntialY: CGFloat = 300
     private let maxMenuOffset: CGFloat = 400
-    private let minMenuOffset: CGFloat = 60
     
     // MARK: - Lifecycle
 
@@ -77,35 +78,38 @@ class ViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-50)
+            make.bottom.equalToSuperview()
         }
         
-        view.addSubview(pageControl)
-        pageControl.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-10)
+        // Add main header view
+        view.addSubview(mainHeaderView)
+        mainHeaderView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(mainHeaderHeight)
+            make.top.equalToSuperview().offset(mainHeaderInitialY)
         }
         
         // Add menu view
         view.addSubview(menuView)
         menuView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.left.right.equalToSuperview()
             make.height.equalTo(menuHeight)
-            make.top.equalToSuperview().offset(menuIntialY) // Initial position at 200pt from top
+            make.top.equalToSuperview().offset(menuIntialY)
         }
     }
     
     private func setupChildViewControllers() {
         // Create 3 SimpleCollectionView instances with different colors
         let colors: [UIColor] = [
-            .clear, .clear, .clear
+            .orange.withAlphaComponent(0.5),
+            .cyan.withAlphaComponent(0.5),
+            .green.withAlphaComponent(0.5)
         ]
         
         let titles = ["Page One", "Page Two", "Page Three"]
         
         for i in 0..<pageCount {
             let collectionViewController = SimpleCollectionView(
-                title: titles[i],
                 backgroundColor: colors[i]
             )
             addChild(collectionViewController)
@@ -129,10 +133,12 @@ class ViewController: UIViewController {
     private func updateMenuPosition(with offsetY: CGFloat) {
         // Calculate new Y position for menu
         // offsetY will be negative when scrolling down from the top
-        let translationY = min(maxMenuOffset - menuIntialY, max(minMenuOffset - menuIntialY, -offsetY))
         
+        let menuTranslationY = min(maxMenuOffset - menuIntialY, max(view.safeAreaInsets.top - menuIntialY, -offsetY))
+        let mainHeaderTranslationY = min(maxMainHeaderOffset - mainHeaderInitialY, max((minMainHeaderOffset + view.safeAreaInsets.top + menuHeight) - mainHeaderInitialY, -offsetY))
         // Apply transform instead of updating constraints
-        self.menuView.transform = CGAffineTransform(translationX: 0, y: translationY)
+        self.menuView.transform = CGAffineTransform(translationX: 0, y: menuTranslationY)
+        self.mainHeaderView.transform = CGAffineTransform(translationX: 0, y: mainHeaderTranslationY)
     }
     
     // MARK: - Actions
@@ -148,7 +154,6 @@ class ViewController: UIViewController {
 extension ViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
-        pageControl.currentPage = currentPage
         menuView.setSelectedIndex(currentPage)
         
         // Synchronize all pages to match the current page's offset
@@ -157,7 +162,6 @@ extension ViewController: UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
-        pageControl.currentPage = currentPage
         menuView.setSelectedIndex(currentPage)
         
         // Synchronize all pages to match the current page's offset
@@ -179,7 +183,11 @@ extension ViewController: UIScrollViewDelegate {
         
         for (index, page) in collectionPages.enumerated() {
             if index != currentPageIndex {
-                page.collectionView.setContentOffset(currentPageView.collectionView.contentOffset, animated: false)
+                let currentOffset = currentPageView.collectionView.contentOffset
+                let nextOffsetY = min(-menuHeight, currentOffset.y)
+                page.collectionView.setContentOffset(.init(x: 0,
+                                                           y: nextOffsetY),
+                                                     animated: false)
             }
         }
     }
@@ -190,7 +198,6 @@ extension ViewController: PageMenuViewDelegate {
     func pageMenuView(_ menuView: PageMenuView, didSelectPageAt index: Int) {
         let offsetX = scrollView.frame.width * CGFloat(index)
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
-        pageControl.currentPage = index
     }
 }
 

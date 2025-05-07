@@ -30,7 +30,6 @@ class PageMenuView: UIView {
     lazy var indicatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBlue
-        view.layer.cornerRadius = 2
         return view
     }()
     
@@ -49,12 +48,7 @@ class PageMenuView: UIView {
     // MARK: - Setup
     
     private func setupViews() {
-        backgroundColor = .white
-        layer.cornerRadius = 10
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.1
-        layer.shadowOffset = CGSize(width: 0, height: 2)
-        layer.shadowRadius = 4
+        backgroundColor = .white.withAlphaComponent(0.5)
         
         addSubview(stackView)
         stackView.snp.makeConstraints { make in

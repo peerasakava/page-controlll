@@ -10,16 +10,7 @@ class SimpleCollectionView: UIViewController {
     
     // MARK: - Properties
     
-    var pageTitle: String = "Default Page"
     var pageBackgroundColor: UIColor = .white
-    
-    lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        label.textAlignment = .center
-        return label
-    }()
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -39,8 +30,7 @@ class SimpleCollectionView: UIViewController {
     
     // MARK: - Initialization
     
-    init(title: String = "Default Page", backgroundColor: UIColor = .white) {
-        self.pageTitle = title
+    init(backgroundColor: UIColor = .white) {
         self.pageBackgroundColor = backgroundColor
         super.init(nibName: nil, bundle: nil)
     }
@@ -60,18 +50,12 @@ class SimpleCollectionView: UIViewController {
     
     private func setupViews() {
         view.backgroundColor = pageBackgroundColor
-        
-        view.addSubview(titleLabel)
-        titleLabel.text = pageTitle
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
-        }
-        
         view.addSubview(collectionView)
+        
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(16)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
     }
     

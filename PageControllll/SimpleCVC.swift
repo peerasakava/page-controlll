@@ -56,6 +56,7 @@ class SimpleCVC: UICollectionViewCell {
     
     func configure(with title: String) {
         titleLabel.text = title
+        contentView.backgroundColor = .clear
     }
     
     override func prepareForReuse() {
