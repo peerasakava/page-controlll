@@ -25,7 +25,11 @@ class SimpleCollectionView: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SimpleCVC.self, forCellWithReuseIdentifier: SimpleCVC.identifier)
-        collectionView.contentInset = UIEdgeInsets(top: 300, left: 0, bottom: 0, right: 0)
+        let topInset = 300.0
+        let minimumHeight = view.frame.height - topInset
+        let rowHeight = 60.0
+        let bottomInset = CGFloat(products.count) * rowHeight < minimumHeight ? minimumHeight : 0
+        collectionView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
         return collectionView
     }()
     

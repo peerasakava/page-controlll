@@ -242,12 +242,6 @@ extension ViewController: UIScrollViewDelegate {
             if index != currentPageIndex {
                 let currentOffset = currentPageView.collectionView.contentOffset
                 let nextOffsetY = min(-(menuHeight + mainMenuHeight), currentOffset.y) 
-                // check content size height of page not full height
-                if page.collectionView.contentSize.height < page.collectionView.frame.height {
-                    // add content inset to the bottom of the page to make it full height
-                    page.collectionView.contentInset.bottom = page.collectionView.frame.height - page.collectionView.contentSize.height 
-                }
-                
                 page.collectionView.setContentOffset(.init(x: 0,
                                                             y: nextOffsetY),
                                                     animated: false)
