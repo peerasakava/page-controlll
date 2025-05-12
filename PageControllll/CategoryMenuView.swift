@@ -1,20 +1,20 @@
 //
-//  PageMenuView.swift
+//  CategoryMenuView.swift
 //  PageControllll
 //
 
 import UIKit
 import SnapKit
 
-protocol PageMenuViewDelegate: AnyObject {
-    func pageMenuView(_ menuView: PageMenuView, didSelectPageAt index: Int)
+protocol CategoryMenuViewDelegate: AnyObject {
+    func categoryMenuView(_ menuView: CategoryMenuView, didSelectPageAt index: Int)
 }
 
-class PageMenuView: UIView {
+class CategoryMenuView: UIView {
     
     // MARK: - Properties
     
-    weak var delegate: PageMenuViewDelegate?
+    weak var delegate: CategoryMenuViewDelegate?
     private var buttons: [UIButton] = []
     private var selectedIndex: Int = 0
     
@@ -48,7 +48,7 @@ class PageMenuView: UIView {
     // MARK: - Setup
     
     private func setupViews() {
-        backgroundColor = .white.withAlphaComponent(0.5)
+        backgroundColor = .white
         
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
@@ -76,7 +76,7 @@ class PageMenuView: UIView {
         for (index, title) in titles.enumerated() {
             let button = UIButton(type: .system)
             button.setTitle(title, for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
             button.setTitleColor(index == selectedIndex ? .systemBlue : .darkGray, for: .normal)
             button.tag = index
             button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
@@ -121,6 +121,6 @@ class PageMenuView: UIView {
     
     @objc private func buttonTapped(_ sender: UIButton) {
         setSelectedIndex(sender.tag)
-        delegate?.pageMenuView(self, didSelectPageAt: sender.tag)
+        delegate?.categoryMenuView(self, didSelectPageAt: sender.tag)
     }
 } 

@@ -11,7 +11,6 @@ import SnapKit
 class ViewController: UIViewController {
     
     // MARK: - Properties
-    
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isPagingEnabled = true
@@ -29,33 +28,32 @@ class ViewController: UIViewController {
     
     lazy var mainMenuView: MainMenuView = {
         let mainMenuView = MainMenuView()
+        mainMenuView.backgroundColor = .white.withAlphaComponent(0.8)
         mainMenuView.delegate = self
         return mainMenuView
     }()
 
-    lazy var menuView: PageMenuView = {
-        let menuView = PageMenuView()
+    lazy var menuView: CategoryMenuView = {
+        let menuView = CategoryMenuView()
+        menuView.backgroundColor = .green.withAlphaComponent(0.5)
         menuView.delegate = self
         return menuView
     }()
     
+    lazy var navigationBar: UIView = {
+        let navBar = UIView()
+        navBar.backgroundColor = .brown.withAlphaComponent(0.4)
+        return navBar
+    }()
+    
     private var collectionPages: [SimpleCollectionView] = []
     private var currentCategories: [Category] = []
-    private var pageCount: Int {
-        return currentCategories.count
-    }
+    private var pageCount: Int { return currentCategories.count }
 
-    private let mainHeaderHeight: CGFloat = 300
-    private let mainHeaderInitialY: CGFloat = 60
-    private let maxMainHeaderOffset: CGFloat = 400
-    private let minMainHeaderOffset: CGFloat = -300
-
+    private let navBarHeight: CGFloat = 60
+    private let mainHeaderHeight: CGFloat = 200
     private let mainMenuHeight: CGFloat = 60
-    private let mainMenuInitialY: CGFloat = 240
-    
     private let menuHeight: CGFloat = 60
-    private let menuIntialY: CGFloat = 300
-    private let maxMenuOffset: CGFloat = 500
     
     // MARK: - Lifecycle
 
@@ -73,7 +71,8 @@ class ViewController: UIViewController {
         super.viewDidLayoutSubviews()
         
         // Update content size for horizontal scrolling
-        scrollView.contentSize = CGSize(width: scrollView.frame.width * CGFloat(pageCount), height: scrollView.frame.height)
+        scrollView.contentSize = CGSize(width: scrollView.frame.width * CGFloat(pageCount),
+                                        height: scrollView.frame.height)
         
         // Update frames of child view controllers
         for (index, childVC) in collectionPages.enumerated() {
@@ -96,13 +95,13 @@ class ViewController: UIViewController {
             make.top.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
-        
+    
         // Add main header view
         view.addSubview(mainHeaderView)
         mainHeaderView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(mainHeaderHeight)
-            make.top.equalToSuperview().offset(mainHeaderInitialY)
+            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(navBarHeight)
         }
         
         // Add main menu view
@@ -110,7 +109,7 @@ class ViewController: UIViewController {
         mainMenuView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.height.equalTo(mainMenuHeight)
-            make.top.equalToSuperview().offset(mainMenuInitialY)
+            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(navBarHeight + mainHeaderHeight)
         }
         
         // Add menu view
@@ -118,7 +117,15 @@ class ViewController: UIViewController {
         menuView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.height.equalTo(menuHeight)
-            make.top.equalToSuperview().offset(menuIntialY)
+            make.top.equalTo(mainMenuView.snp.bottom)
+        }
+        
+        // Add navigation bar
+        view.addSubview(navigationBar)
+        navigationBar.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.top.equalToSuperview()
+            make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(navBarHeight)
         }
     }
     
@@ -131,23 +138,14 @@ class ViewController: UIViewController {
         }
         collectionPages.removeAll()
         
-        // Create background colors
-        let colors: [UIColor] = [
-            .orange.withAlphaComponent(0.5),
-            .cyan.withAlphaComponent(0.5),
-            .green.withAlphaComponent(0.5),
-            .purple.withAlphaComponent(0.5)
-        ]
-        
         // Create titles from categories
         let titles = currentCategories.map { $0.name }
         
         for i in 0..<pageCount {
             let category = currentCategories[i]
-            let colorIndex = i % colors.count
             
             let collectionViewController = SimpleCollectionView(
-                backgroundColor: colors[colorIndex],
+                backgroundColor: .white,
                 products: category.products
             )
             addChild(collectionViewController)
@@ -174,17 +172,16 @@ class ViewController: UIViewController {
     // MARK: - Menu Positioning
     
     private func updateMenuPosition(with offsetY: CGFloat) {
-        // Calculate new Y position for menu and main menu
-        // offsetY will be negative when scrolling down from the top
-        
-        let mainMenuTranslationY = min(maxMenuOffset - mainMenuInitialY, max(view.safeAreaInsets.top - mainMenuInitialY, -offsetY))
-        let menuTranslationY = min(maxMenuOffset - menuIntialY, max(view.safeAreaInsets.top - menuIntialY + mainMenuHeight, -offsetY))
-        let mainHeaderTranslationY = min(maxMainHeaderOffset - mainHeaderInitialY, max((minMainHeaderOffset + view.safeAreaInsets.top + menuHeight) - mainHeaderInitialY, -offsetY))
-        
-        // Apply transform instead of updating constraints
-        self.mainMenuView.transform = CGAffineTransform(translationX: 0, y: mainMenuTranslationY)
-        self.menuView.transform = CGAffineTransform(translationX: 0, y: menuTranslationY)
-        self.mainHeaderView.transform = CGAffineTransform(translationX: 0, y: mainHeaderTranslationY)
+        let mainHeaderTranslationY = max(-(mainHeaderHeight), -offsetY)
+        let mainMenuTranslationY = max(-(mainHeaderHeight + mainMenuHeight - navBarHeight), -offsetY)
+        let menuTranslationY = max(-(mainHeaderHeight + menuHeight - navBarHeight), -offsetY)
+
+        self.mainMenuView.transform = CGAffineTransform(translationX: 0,
+                                                        y: mainMenuTranslationY)
+        self.menuView.transform = CGAffineTransform(translationX: 0,
+                                                    y: menuTranslationY)
+        self.mainHeaderView.transform = CGAffineTransform(translationX: 0,
+                                                          y: mainHeaderTranslationY)
     }
     
     // MARK: - Actions
@@ -241,7 +238,7 @@ extension ViewController: UIScrollViewDelegate {
         for (index, page) in collectionPages.enumerated() {
             if index != currentPageIndex {
                 let currentOffset = currentPageView.collectionView.contentOffset
-                let nextOffsetY = min(-(menuHeight + mainMenuHeight), currentOffset.y) 
+                let nextOffsetY = min(-(navBarHeight + mainMenuHeight + menuHeight), currentOffset.y)
                 page.collectionView.setContentOffset(.init(x: 0,
                                                             y: nextOffsetY),
                                                     animated: false)
@@ -250,9 +247,9 @@ extension ViewController: UIScrollViewDelegate {
     }
 }
 
-// MARK: - PageMenuViewDelegate
-extension ViewController: PageMenuViewDelegate {
-    func pageMenuView(_ menuView: PageMenuView, didSelectPageAt index: Int) {
+// MARK: - CategoryMenuViewDelegate
+extension ViewController: CategoryMenuViewDelegate {
+    func categoryMenuView(_ menuView: CategoryMenuView, didSelectPageAt index: Int) {
         let offsetX = scrollView.frame.width * CGFloat(index)
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
     }

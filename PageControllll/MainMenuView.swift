@@ -73,7 +73,7 @@ class MainMenuView: UIView {
         for (index, title) in titles.enumerated() {
             let button = UIButton(type: .system)
             button.setTitle(title, for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
             button.setTitleColor(index == selectedIndex ? .systemRed : .darkGray, for: .normal)
             button.tag = index
             button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)

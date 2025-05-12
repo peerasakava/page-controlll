@@ -25,7 +25,11 @@ class SimpleCollectionView: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SimpleCVC.self, forCellWithReuseIdentifier: SimpleCVC.identifier)
-        let topInset = 300.0
+        let navBarHeight = 60.0
+        let headerHeight = 200.0
+        let menuHeights = (60.0) * 2.0
+        let topInset = [navBarHeight, headerHeight, menuHeights].reduce(0, +)
+        
         let minimumHeight = view.frame.height - topInset
         let rowHeight = 60.0
         let bottomInset = CGFloat(products.count) * rowHeight < minimumHeight ? minimumHeight : 0
