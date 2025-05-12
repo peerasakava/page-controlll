@@ -52,7 +52,7 @@ class CategoryMenuView: UIView {
         
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 16, bottom: 4, right: 16))
+            make.edges.equalToSuperview()
         }
         
         addSubview(indicatorView)

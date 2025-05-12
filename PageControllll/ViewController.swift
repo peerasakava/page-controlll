@@ -55,6 +55,8 @@ class ViewController: UIViewController {
     private let mainMenuHeight: CGFloat = 60
     private let menuHeight: CGFloat = 60
     
+    private var storedOffsetY: CGFloat? = nil
+    
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -167,6 +169,9 @@ class ViewController: UIViewController {
         if !titles.isEmpty {
             menuView.setSelectedIndex(0)
         }
+        
+        guard let storedOffsetY else { return }
+        synchronizeContentOffsets(offsetY: storedOffsetY)
     }
     
     // MARK: - Menu Positioning
@@ -245,6 +250,20 @@ extension ViewController: UIScrollViewDelegate {
             }
         }
     }
+    
+    private func synchronizeContentOffsets(offsetY: CGFloat) {
+        for page in collectionPages {
+            page.collectionView.setContentOffset(.init(x: 0,
+                                                       y: offsetY),
+                                                 animated: false)
+        }
+    }
+    
+    private func updateStoredOffset() {
+        let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
+        let currentPageView = collectionPages[currentPage]
+        storedOffsetY = currentPageView.collectionView.contentOffset.y
+    }
 }
 
 // MARK: - CategoryMenuViewDelegate
@@ -252,12 +271,15 @@ extension ViewController: CategoryMenuViewDelegate {
     func categoryMenuView(_ menuView: CategoryMenuView, didSelectPageAt index: Int) {
         let offsetX = scrollView.frame.width * CGFloat(index)
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
+        let currentPage = Int(scrollView.contentOffset.x / scrollView.frame.width)
+        synchronizeContentOffsets(currentPageIndex: currentPage)
     }
 }
 
 // MARK: - MainMenuViewDelegate
 extension ViewController: MainMenuViewDelegate {
     func mainMenuView(_ menuView: MainMenuView, didSelectMenuAt index: Int) {
+        updateStoredOffset()
         switchToMenuType(index)
     }
 }
