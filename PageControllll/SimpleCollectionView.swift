@@ -20,22 +20,14 @@ class SimpleCollectionView: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let collectionView = UICollectionView(frame: .zero,
+                                              collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(SimpleCVC.self, forCellWithReuseIdentifier: SimpleCVC.identifier)
-        let screenInset = view.safeAreaInsets.top
-        let navBarHeight = 60.0
-        let headerHeight = 200.0
-        let menuHeights = (60.0) * 2.0
-        let topInset = [screenInset, navBarHeight, headerHeight, menuHeights].reduce(0, +)
-        
-        let minimumHeight = view.frame.height - topInset
-        let rowHeight = 60.0
-        let bottomInset = CGFloat(products.count) * rowHeight < minimumHeight ? minimumHeight : 0
-        collectionView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
+        collectionView.register(SimpleCVC.self,
+                                forCellWithReuseIdentifier: SimpleCVC.identifier)
         return collectionView
     }()
     
@@ -64,8 +56,28 @@ class SimpleCollectionView: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        guard let offsetY else { return }
-        collectionView.contentOffset = .init(x: 0, y: offsetY)
+        
+        let headerHeight = 200.0
+        let menuHeights = (60.0) * 2.0
+        let topInset = [headerHeight, menuHeights].reduce(0, +)
+        let minimumHeight = view.frame.height - topInset
+        
+        // Apply top inset immediately
+        self.collectionView.contentInset.top = topInset
+        
+        // Calculate bottom inset after layout
+        DispatchQueue.main.async {
+            let contentHeight = self.collectionView.contentSize.height
+            print("📏 Updated content height:", contentHeight)
+            print("🥸 Minimum content height:", minimumHeight)
+            let bottomInset = contentHeight < minimumHeight ? minimumHeight : 0
+            self.collectionView.contentInset.bottom = bottomInset
+            
+            // Apply saved offset if available
+            if let offsetY = self.offsetY {
+                self.collectionView.contentOffset = .init(x: 0, y: offsetY)
+            }
+        }
     }
     
     // MARK: - Setup
@@ -75,7 +87,7 @@ class SimpleCollectionView: UIViewController {
         view.addSubview(collectionView)
         
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(60)
             make.left.right.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
@@ -117,6 +129,8 @@ extension SimpleCollectionView: UICollectionViewDataSource {
         } else {
             cell.configure(with: products[indexPath.row])
         }
+        
+        cell.backgroundColor = .red.withAlphaComponent(0.2)
         
         return cell
     }

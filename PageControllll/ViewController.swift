@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     lazy var mainHeaderView: UIView = {
         let mainHeaderView = UIView()
-        mainHeaderView.backgroundColor = .yellow
+        mainHeaderView.backgroundColor = .yellow.withAlphaComponent(0.5)
         return mainHeaderView
     }()
     
@@ -244,7 +244,7 @@ extension ViewController: UIScrollViewDelegate {
         for (index, page) in collectionPages.enumerated() {
             if index != currentPageIndex {
                 let currentOffset = currentPageView.collectionView.contentOffset
-                let nextOffsetY = min(-(navBarHeight + mainMenuHeight + menuHeight), currentOffset.y)
+                let nextOffsetY = min(-(mainMenuHeight + menuHeight), currentOffset.y)
                 page.collectionView.setContentOffset(.init(x: 0,
                                                             y: nextOffsetY),
                                                     animated: false)
