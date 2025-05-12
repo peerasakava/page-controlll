@@ -33,11 +33,23 @@ class ViewController: UIViewController {
         return mainMenuView
     }()
 
+    lazy var dummyMainMenuView: UIView = {
+        let dummyMainMenuView = UIView()
+        dummyMainMenuView.backgroundColor = .red.withAlphaComponent(0.5)
+        return dummyMainMenuView
+    }()
+
     lazy var menuView: CategoryMenuView = {
         let menuView = CategoryMenuView()
         menuView.backgroundColor = .green.withAlphaComponent(0.5)
         menuView.delegate = self
         return menuView
+    }()
+
+    lazy var dummyMenuView: UIView = {
+        let dummyMenuView = UIView()
+        dummyMenuView.backgroundColor = .blue.withAlphaComponent(0.5)
+        return dummyMenuView
     }()
     
     lazy var navigationBar: UIView = {
@@ -107,19 +119,19 @@ class ViewController: UIViewController {
         }
         
         // Add main menu view
-        view.addSubview(mainMenuView)
-        mainMenuView.snp.makeConstraints { make in
+        view.addSubview(dummyMainMenuView)
+        dummyMainMenuView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.height.equalTo(mainMenuHeight)
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(navBarHeight + mainHeaderHeight)
         }
         
         // Add menu view
-        view.addSubview(menuView)
-        menuView.snp.makeConstraints { make in
+        view.addSubview(dummyMenuView)
+        dummyMenuView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.height.equalTo(menuHeight)
-            make.top.equalTo(mainMenuView.snp.bottom)
+            make.top.equalTo(dummyMainMenuView.snp.bottom)
         }
         
         // Add navigation bar
@@ -182,9 +194,9 @@ class ViewController: UIViewController {
         let mainMenuTranslationY = max(-(mainHeaderHeight + mainMenuHeight - navBarHeight), -offsetY)
         let menuTranslationY = max(-(mainHeaderHeight + menuHeight - navBarHeight), -offsetY)
 
-        self.mainMenuView.transform = CGAffineTransform(translationX: 0,
+        self.dummyMainMenuView.transform = CGAffineTransform(translationX: 0,
                                                         y: mainMenuTranslationY)
-        self.menuView.transform = CGAffineTransform(translationX: 0,
+        self.dummyMenuView.transform = CGAffineTransform(translationX: 0,
                                                     y: menuTranslationY)
         self.mainHeaderView.transform = CGAffineTransform(translationX: 0,
                                                           y: mainHeaderTranslationY)

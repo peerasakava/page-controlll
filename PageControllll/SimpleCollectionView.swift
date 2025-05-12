@@ -56,11 +56,10 @@ class SimpleCollectionView: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         let headerHeight = 200.0
         let menuHeights = (60.0) * 2.0
-        let topInset = [headerHeight, menuHeights].reduce(0, +)
-        let minimumHeight = view.frame.height - topInset
+        let topInset = headerHeight + menuHeights
+        let minimumHeight = view.frame.height - topInset - 16
         
         // Apply top inset immediately
         self.collectionView.contentInset.top = topInset
@@ -68,8 +67,6 @@ class SimpleCollectionView: UIViewController {
         // Calculate bottom inset after layout
         DispatchQueue.main.async {
             let contentHeight = self.collectionView.contentSize.height
-            print("📏 Updated content height:", contentHeight)
-            print("🥸 Minimum content height:", minimumHeight)
             let bottomInset = contentHeight < minimumHeight ? minimumHeight : 0
             self.collectionView.contentInset.bottom = bottomInset
             
@@ -89,7 +86,7 @@ class SimpleCollectionView: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(60)
             make.left.right.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+            make.bottom.equalToSuperview()
         }
     }
     

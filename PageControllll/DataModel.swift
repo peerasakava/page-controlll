@@ -53,8 +53,8 @@ extension Product {
 
 extension Category {
     static let coreOfferings: [Category] = [
-        Category(name: "Mobile Devices", emoji: "📱", products: Product.mobileDevices),
         Category(name: "Tablets", emoji: "📱", products: Product.tablets),
+        Category(name: "Mobile Devices", emoji: "📱", products: Product.mobileDevices),
         Category(name: "Laptops", emoji: "", products: Product.laptops)
     ]
 
