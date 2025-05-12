@@ -148,7 +148,8 @@ class ViewController: UIViewController {
             
             let collectionViewController = SimpleCollectionView(
                 backgroundColor: .white,
-                products: category.products
+                products: category.products,
+                offsetY: storedOffsetY
             )
             addChild(collectionViewController)
             scrollView.addSubview(collectionViewController.view)

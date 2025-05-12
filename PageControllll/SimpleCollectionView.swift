@@ -12,6 +12,7 @@ class SimpleCollectionView: UIViewController {
     
     var pageBackgroundColor: UIColor = .white
     var products: [Product] = []
+    var offsetY: CGFloat? = nil
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -40,9 +41,13 @@ class SimpleCollectionView: UIViewController {
     
     // MARK: - Initialization
     
-    init(backgroundColor: UIColor = .white, products: [Product] = []) {
+    init(backgroundColor: UIColor = .white,
+         products: [Product] = [],
+         offsetY: CGFloat? = nil
+    ) {
         self.pageBackgroundColor = backgroundColor
         self.products = products
+        self.offsetY = offsetY
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -55,6 +60,12 @@ class SimpleCollectionView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let offsetY else { return }
+        collectionView.contentOffset = .init(x: 0, y: offsetY)
     }
     
     // MARK: - Setup
